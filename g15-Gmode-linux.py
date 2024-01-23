@@ -44,31 +44,44 @@ def turnOff():
     # echo "\_SB.AMW3.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}" > /proc/acpi/call
     # echo "\_SB.AMW3.WMAX 0 0x25 {1, 0x00, 0x00, 0x00}" > /proc/acpi/call
     # from archwiki
-    acpi_call_0x15 = open('/proc/acpi/call', 'w')
-    acpi_call_0x15.write('\_SB.AMW3.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}')
-    acpi_call_0x15.close()
-    acpi_call_0x25 = open('/proc/acpi/call', 'w')
-    acpi_call_0x25.write('\_SB.AMW3.WMAX 0 0x25 {1, 0x00, 0x00, 0x00}')
-    acpi_call_0x25.close()
-    path = "/tmp/g15FanStatus"
-    file = open(path, 'w')
-    file.write('off')
-  
+    try:
+        with open('/proc/acpi/call', 'w') as acpi_call_0x15:
+            acpi_call_0x15.write('\\_SB.AMW3.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}')
+    except FileNotFoundError:
+        print('acpi_call module not loaded')
+    
+    try:
+        with open('/proc/acpi/call', 'w') as acpi_call_0x25:
+            acpi_call_0x25.write('\\_SB.AMW3.WMAX 0 0x25 {1, 0x00, 0x00, 0x00}')
+    except FileNotFoundError:
+        print('acpi_call module not loaded')
+    
+    with open('/tmp/g15FanStatus', 'w') as fanStatus:
+        fanStatus.write('off')
+    
+
+
 # turn on GMode  
 def turnOn():
     print('turning on')
     # echo "\_SB.AMW3.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}" > /proc/acpi/call
     # echo "\_SB.AMW3.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}" > /proc/acpi/call
     # from archwiki
-    acpi_call_0x15 = open('/proc/acpi/call', 'w')
-    acpi_call_0x15.write('\_SB.AMW3.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}')
-    acpi_call_0x15.close()
-    acpi_call_0x25 = open('/proc/acpi/call', 'w')
-    acpi_call_0x25.write('\_SB.AMW3.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}')
-    acpi_call_0x25.close()
-    path = "/tmp/g15FanStatus"
-    file = open(path, 'w')
-    file.write('on')
+
+    try:
+        with open('/proc/acpi/call', 'w') as acpi_call_0x15:
+            acpi_call_0x15.write('\\_SB.AMW3.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}')
+    except FileNotFoundError:
+        print('acpi_call module not loaded')
+    
+    try:
+        with open('/proc/acpi/call', 'w') as acpi_call_0x25:
+            acpi_call_0x25.write('\\_SB.AMW3.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}')
+    except FileNotFoundError:
+        print('acpi_call module not loaded')
+    
+    with open('/tmp/g15FanStatus', 'w') as fanStatus:
+        fanStatus.write('on')
     
 def main():
     # gain root privilages
@@ -77,6 +90,7 @@ def main():
         turnOff()
     else:
         turnOn()
+    os.system('sleep 3')
         
 if __name__ == "__main__":
     main()
