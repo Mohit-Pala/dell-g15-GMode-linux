@@ -18,26 +18,23 @@ def elevate():
         os.execlp(args[0], *args)
         
 # check if the fan is turned on
-def isFanOn():
+def fanOn():
     try:
-        path = "/tmp/g15FanStatus"
-        file = open(path, 'r')
-        content = file.read()
-        file.close()
-        if(content == 'on'):
-            return True
-        else:
-            return False
+        with open('/proc/acpi/call', 'w') as fanStatus:
+            fanStatus.write('\\_SB.AMW3.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}')
+        with open('/proc/acpi/call', 'r') as fanStatus:
+            fanStatus = fanStatus.read()
+            print(fanStatus)
+            fanStatus = fanStatus[:4]
+            if fanStatus == '0xab':
+                return True
+            else:
+                return False
+            
     except:
-        print('File not found, turning off fan')
-        # call to turn off fan
-        turnOff()
-        # write off to fan status
-        path = "/tmp/g15FanStatus"
-        file = open(path, 'w')
-        file.write('off')
-        return False
+        print('acpi_call module not loaded')
     
+
 # turn off GMode
 def turnOff():
     print('turnign off')
@@ -55,9 +52,6 @@ def turnOff():
             acpi_call_0x25.write('\\_SB.AMW3.WMAX 0 0x25 {1, 0x00, 0x00, 0x00}')
     except FileNotFoundError:
         print('acpi_call module not loaded')
-    
-    with open('/tmp/g15FanStatus', 'w') as fanStatus:
-        fanStatus.write('off')
     
 
 
@@ -80,17 +74,13 @@ def turnOn():
     except FileNotFoundError:
         print('acpi_call module not loaded')
     
-    with open('/tmp/g15FanStatus', 'w') as fanStatus:
-        fanStatus.write('on')
-    
 def main():
     # gain root privilages
     elevate()
-    if isFanOn():
+    if fanOn():
         turnOff()
     else:
         turnOn()
-    os.system('sleep 3')
         
 if __name__ == "__main__":
     main()
